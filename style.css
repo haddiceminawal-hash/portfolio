@@ -673,6 +673,78 @@ h1, h2, h3 {
   max-width: 560px;
 }
 
+/* ---------- About ---------- */
+
+.about {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2.2rem;
+  align-items: center;
+}
+
+.about-photo {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.portrait,
+.portrait-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  box-shadow: var(--shadow);
+}
+
+.portrait {
+  object-fit: cover;
+  display: none;
+}
+
+.portrait.loaded {
+  display: block;
+}
+
+.portrait-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 2.6rem;
+  letter-spacing: 0.02em;
+}
+
+.about-text p {
+  color: var(--text-soft);
+  margin-bottom: 0.9rem;
+  max-width: 620px;
+}
+
+.about-text p:last-child {
+  margin-bottom: 0;
+}
+
+.about-text strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .about {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+}
+
 /* ---------- Contact ---------- */
 
 .contact-box {
@@ -687,6 +759,13 @@ h1, h2, h3 {
 .contact-box p {
   color: var(--text-soft);
   margin-bottom: 2rem;
+}
+
+.contact-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* ---------- Footer ---------- */

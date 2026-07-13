@@ -27,6 +27,7 @@
     <span class="logo-text">Haddice Minawal</span>
   </a>
   <ul class="nav-links">
+    <li><a href="#ueber">Über mich</a></li>
     <li><a href="#projekte">Projekte</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#weg">Mein Weg</a></li>
@@ -65,6 +66,26 @@
 </header>
 
 <main>
+
+  <section id="ueber" class="section">
+    <span class="eyebrow">// Wer hinter dem Code steckt</span>
+    <h2>Über mich</h2>
+    <div class="about">
+      <div class="about-photo reveal">
+        <div class="portrait-fallback" id="portrait-fallback">HM</div>
+        <img src="me.jpg" alt="Foto von Haddice Minawal" class="portrait" id="portrait"
+             onload="this.classList.add('loaded'); document.getElementById('portrait-fallback').style.display='none';">
+      </div>
+      <div class="about-text reveal">
+        <p>Hi, ich bin Haddice. Ich gehe noch zur Schule und bringe mir nebenbei
+           das Programmieren bei – Schritt für Schritt, mit vielen kleinen Projekten.</p>
+        <p>Angefangen hat alles mit <strong>Python</strong>, inzwischen baue ich auch
+           Webseiten mit <strong>HTML, CSS und JavaScript</strong>. Mein Ziel: später
+           beruflich in die <strong>IT und Softwareentwicklung</strong>.</p>
+        <p>Diese Seite wächst mit mir – jedes neue Projekt kommt dazu.</p>
+      </div>
+    </div>
+  </section>
 
   <section id="projekte" class="section">
     <span class="eyebrow">// Was ich gebaut habe</span>
@@ -253,7 +274,10 @@
       <span class="eyebrow">// Sag hallo</span>
       <h2>Kontakt</h2>
       <p>Feedback zu einem Projekt, eine Idee oder einfach Neugier?<br>Ich freue mich über jede Nachricht.</p>
-      <a href="mailto:haddice.minawal@gmail.com" class="btn btn-primary btn-lg">haddice.minawal@gmail.com</a>
+      <div class="contact-actions">
+        <a href="mailto:haddice.minawal@gmail.com" class="btn btn-primary btn-lg">haddice.minawal@gmail.com</a>
+        <a href="https://github.com/haddiceminawal-hash" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">GitHub-Profil ↗</a>
+      </div>
     </div>
   </section>
 
