@@ -56,12 +56,11 @@ if ("IntersectionObserver" in window) {
   document.querySelectorAll(".reveal").forEach((el) => el.classList.add("is-visible"));
 }
 
-/* ---------- Terminal: Befehle tippen sich selbst ---------- */
+/* ---------- Interaktives Terminal ---------- */
 
-const TERMINAL_SCRIPT = [
+const TERMINAL_INTRO = [
   { cmd: "whoami", out: ["Haddice Minawal — Schule tagsüber, Code danach."] },
   { cmd: "skills --ehrlich", out: ["HTML · CSS · JavaScript · Python", "Status: alles am Lernen — und das ist der Plan."] },
-  { cmd: "motto", out: ["Jedes Projekt ein Stück besser als das letzte."] },
 ];
 
 (function initTerminal() {
@@ -70,65 +69,143 @@ const TERMINAL_SCRIPT = [
 
   const PROMPT = '<span class="prompt">haddice@portfolio</span> <span class="out">%</span> ';
 
-  // Ohne Animation: alles sofort anzeigen
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  const COMMANDS = {
+    help: () => [
+      "Verfügbare Befehle:",
+      "  ueber      – kurz über mich",
+      "  projekte   – meine Projekte",
+      "  skills     – womit ich arbeite",
+      "  kontakt    – Kontaktformular öffnen",
+      "  clear      – Terminal leeren",
+    ],
+    ueber: () => [
+      "Schüler, der sich nebenbei das Programmieren beibringt.",
+      "Ziel: später in die IT & Softwareentwicklung.",
+    ],
+    projekte: () => [
+      "1) Apfelkuchen-Rezeptseite  — HTML/CSS/JS  (live)",
+      "2) TicTacToe                — Python       (Code)",
+      "→ Scroll runter zu 'Projekte' für Details.",
+    ],
+    skills: () => [
+      "HTML · CSS · JavaScript · Python",
+      "Werkzeuge: VS Code, Git & GitHub",
+      "Status: alles am Lernen.",
+    ],
+    kontakt: () => {
+      if (typeof window.openContactModal === "function") {
+        setTimeout(() => window.openContactModal(), 350);
+        return ["Öffne Kontaktformular … (oder direkt: haddice.minawal@gmail.com)"];
+      }
+      return ["Schreib mir: haddice.minawal@gmail.com"];
+    },
+    whoami: () => ["Haddice Minawal"],
+  };
+  COMMANDS.about = COMMANDS.ueber;
+  COMMANDS.projects = COMMANDS.projekte;
+  COMMANDS.contact = COMMANDS.kontakt;
+
+  let inputLine = null;
+  let input = null;
+
+  function appendLine(html) {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    if (inputLine) body.insertBefore(div, inputLine);
+    else body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function runCommand(raw) {
+    appendLine(PROMPT + '<span class="cmd">' + esc(raw) + "</span>");
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+    if (cmd === "clear" || cmd === "cls") {
+      Array.from(body.children).forEach((c) => { if (c !== inputLine) body.removeChild(c); });
+      return;
+    }
+    const handler = COMMANDS[cmd];
+    const lines = handler
+      ? handler()
+      : ["zsh: command not found: " + esc(cmd) + " — tippe 'help'"];
+    lines.forEach((line) => appendLine('<span class="out">' + line + "</span>"));
+  }
+
+  function startInteractive() {
+    appendLine('<span class="out">Tipp: tippe <span class="cmd">help</span> und drück Enter.</span>');
+    inputLine = document.createElement("div");
+    inputLine.className = "term-line";
+    inputLine.innerHTML = PROMPT +
+      '<input class="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal-Eingabe">';
+    body.appendChild(inputLine);
+    input = inputLine.querySelector(".term-input");
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const val = input.value;
+        input.value = "";
+        runCommand(val);
+      }
+    });
+    body.addEventListener("click", () => {
+      if (window.getSelection().toString()) return;
+      input.focus();
+    });
+  }
+
+  // Intro sofort (reduzierte Bewegung) …
   if (prefersReducedMotion) {
-    body.innerHTML = TERMINAL_SCRIPT.map((entry) =>
-      PROMPT + '<span class="cmd">' + entry.cmd + "</span><br>" +
-      entry.out.map((line) => '<span class="out">' + line + "</span>").join("<br>") + "<br>"
-    ).join("") + PROMPT + '<span class="cursor"></span>';
+    TERMINAL_INTRO.forEach((entry) => {
+      appendLine(PROMPT + '<span class="cmd">' + entry.cmd + "</span>");
+      entry.out.forEach((line) => appendLine('<span class="out">' + line + "</span>"));
+    });
+    startInteractive();
     return;
   }
 
-  let html = "";
+  // … oder als getippte Animation, danach interaktiv
   let entryIndex = 0;
   let charIndex = 0;
-
-  function render(suffix) {
-    body.innerHTML = html + suffix;
-  }
+  let typedEl = null;
 
   function typeCommand() {
-    const entry = TERMINAL_SCRIPT[entryIndex];
+    const entry = TERMINAL_INTRO[entryIndex];
     if (charIndex === 0) {
-      render(PROMPT + '<span class="cursor"></span>');
+      typedEl = document.createElement("div");
+      body.appendChild(typedEl);
     }
     if (charIndex < entry.cmd.length) {
       charIndex++;
-      render(PROMPT + '<span class="cmd">' + entry.cmd.slice(0, charIndex) + '</span><span class="cursor"></span>');
+      typedEl.innerHTML = PROMPT + '<span class="cmd">' + entry.cmd.slice(0, charIndex) + '</span><span class="cursor"></span>';
       setTimeout(typeCommand, 55 + Math.random() * 70);
     } else {
-      html += PROMPT + '<span class="cmd">' + entry.cmd + "</span><br>";
-      setTimeout(printOutput, 350);
+      typedEl.innerHTML = PROMPT + '<span class="cmd">' + entry.cmd + "</span>";
+      setTimeout(printOutput, 300);
     }
   }
 
   function printOutput() {
-    const entry = TERMINAL_SCRIPT[entryIndex];
-    html += entry.out.map((line) => '<span class="out">' + line + "</span>").join("<br>") + "<br>";
+    const entry = TERMINAL_INTRO[entryIndex];
+    entry.out.forEach((line) => appendLine('<span class="out">' + line + "</span>"));
     entryIndex++;
     charIndex = 0;
-    if (entryIndex < TERMINAL_SCRIPT.length) {
-      render("");
-      setTimeout(typeCommand, 650);
-    } else {
-      render(PROMPT + '<span class="cursor"></span>');
-    }
+    if (entryIndex < TERMINAL_INTRO.length) setTimeout(typeCommand, 500);
+    else setTimeout(startInteractive, 400);
   }
 
   setTimeout(typeCommand, 700);
 })();
 
-/* ---------- Kontakt-Popup nach Verzögerung ---------- */
+/* ---------- Kontakt-Popup (per Button / Terminal-Befehl) ---------- */
 
 (function initContactModal() {
   const overlay = document.getElementById("contact-modal");
   if (!overlay) return;
 
-  const STORAGE_KEY = "contactModalSeen";
-  // Schon gesendet oder weggeklickt? Dann nicht wieder zeigen.
-  if (localStorage.getItem(STORAGE_KEY)) return;
-
-  const DELAY_MS = 25000;
   const closeBtn = document.getElementById("modal-close");
   const form = document.getElementById("contact-form");
   const formView = document.getElementById("modal-form-view");
@@ -141,10 +218,6 @@ const TERMINAL_SCRIPT = [
 
   let lastFocused = null;
   let mathSolution = 0;
-
-  function remember() {
-    try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) {}
-  }
 
   function newMathQuestion() {
     const a = 1 + Math.floor(Math.random() * 8);
@@ -183,7 +256,6 @@ const TERMINAL_SCRIPT = [
     overlay.classList.remove("open");
     overlay.setAttribute("aria-hidden", "true");
     document.removeEventListener("keydown", onKeydown);
-    remember();
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
@@ -232,7 +304,6 @@ const TERMINAL_SCRIPT = [
         document.getElementById("success-name").textContent = name;
         formView.hidden = true;
         successView.hidden = false;
-        remember();
       } else {
         showError("Da ist etwas schiefgelaufen. Bitte versuch es später noch einmal.");
         submitBtn.disabled = false;
@@ -252,5 +323,8 @@ const TERMINAL_SCRIPT = [
   document.getElementById("success-close").addEventListener("click", closeModal);
   form.addEventListener("submit", onSubmit);
 
-  setTimeout(openModal, DELAY_MS);
+  // Öffnen über den schwebenden Button oder den Terminal-Befehl 'kontakt'
+  window.openContactModal = openModal;
+  const fab = document.getElementById("contact-fab");
+  if (fab) fab.addEventListener("click", openModal);
 })();
