@@ -117,3 +117,51 @@ const TERMINAL_SCRIPT = [
 
   setTimeout(typeCommand, 700);
 })();
+
+/* ---------- Kontakt-Popup nach Verzögerung ---------- */
+
+(function initContactModal() {
+  const overlay = document.getElementById("contact-modal");
+  if (!overlay) return;
+
+  const STORAGE_KEY = "contactModalSeen";
+  // Schon einmal weggeklickt oder genutzt? Dann nicht wieder zeigen.
+  if (localStorage.getItem(STORAGE_KEY)) return;
+
+  const closeBtn = document.getElementById("modal-close");
+  const DELAY_MS = 25000;
+  let lastFocused = null;
+
+  function remember() {
+    try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) {}
+  }
+
+  function openModal() {
+    lastFocused = document.activeElement;
+    overlay.classList.add("open");
+    overlay.setAttribute("aria-hidden", "false");
+    closeBtn.focus();
+    document.addEventListener("keydown", onKeydown);
+  }
+
+  function closeModal() {
+    overlay.classList.remove("open");
+    overlay.setAttribute("aria-hidden", "true");
+    document.removeEventListener("keydown", onKeydown);
+    remember();
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") closeModal();
+  }
+
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeModal();
+  });
+  // Wer auf einen der Buttons klickt, hat reagiert – nicht erneut zeigen.
+  overlay.querySelectorAll("a").forEach((a) => a.addEventListener("click", remember));
+
+  setTimeout(openModal, DELAY_MS);
+})();
