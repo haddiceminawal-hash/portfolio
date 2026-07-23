@@ -125,19 +125,54 @@ const TERMINAL_SCRIPT = [
   if (!overlay) return;
 
   const STORAGE_KEY = "contactModalSeen";
-  // Schon einmal weggeklickt oder genutzt? Dann nicht wieder zeigen.
+  // Schon gesendet oder weggeklickt? Dann nicht wieder zeigen.
   if (localStorage.getItem(STORAGE_KEY)) return;
 
-  const closeBtn = document.getElementById("modal-close");
   const DELAY_MS = 25000;
+  const closeBtn = document.getElementById("modal-close");
+  const form = document.getElementById("contact-form");
+  const formView = document.getElementById("modal-form-view");
+  const successView = document.getElementById("modal-success-view");
+  const mathLabel = document.getElementById("f-math-label");
+  const mathInput = document.getElementById("f-math");
+  const errorBox = document.getElementById("form-error");
+  const submitBtn = document.getElementById("form-submit");
+  const accessKey = document.getElementById("access-key").value;
+
   let lastFocused = null;
+  let mathSolution = 0;
 
   function remember() {
     try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) {}
   }
 
+  function newMathQuestion() {
+    const a = 1 + Math.floor(Math.random() * 8);
+    const b = 1 + Math.floor(Math.random() * 8);
+    mathSolution = a + b;
+    mathLabel.textContent = `Verifizierung: Was ist ${a} + ${b}?`;
+    mathInput.value = "";
+  }
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.hidden = false;
+  }
+
+  function clearError() {
+    errorBox.hidden = true;
+  }
+
+  function isValidEmail(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
   function openModal() {
     lastFocused = document.activeElement;
+    newMathQuestion();
+    formView.hidden = false;
+    successView.hidden = true;
+    clearError();
     overlay.classList.add("open");
     overlay.setAttribute("aria-hidden", "false");
     closeBtn.focus();
@@ -156,12 +191,66 @@ const TERMINAL_SCRIPT = [
     if (e.key === "Escape") closeModal();
   }
 
+  async function onSubmit(e) {
+    e.preventDefault();
+    clearError();
+
+    // Honeypot: ausgefüllt = Bot -> still abbrechen
+    if (form.botcheck.checked) return;
+
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const message = form.message.value.trim();
+
+    if (!name) return showError("Bitte gib deinen Namen ein.");
+    if (!isValidEmail(email)) return showError("Bitte gib eine gültige E-Mail-Adresse ein.");
+    if (!message) return showError("Bitte schreib eine kurze Nachricht.");
+    if (parseInt(mathInput.value, 10) !== mathSolution) {
+      newMathQuestion();
+      return showError("Die Rechenaufgabe stimmt noch nicht – bitte versuch es erneut.");
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Wird gesendet …";
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: accessKey,
+          name,
+          email,
+          message,
+          subject: `Neue Portfolio-Nachricht von ${name}`,
+          from_name: "Portfolio-Kontaktformular",
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById("success-name").textContent = name;
+        formView.hidden = true;
+        successView.hidden = false;
+        remember();
+      } else {
+        showError("Da ist etwas schiefgelaufen. Bitte versuch es später noch einmal.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Absenden";
+      }
+    } catch (err) {
+      showError("Keine Verbindung möglich. Bitte prüfe deine Internetverbindung.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Absenden";
+    }
+  }
+
   closeBtn.addEventListener("click", closeModal);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) closeModal();
   });
-  // Wer auf einen der Buttons klickt, hat reagiert – nicht erneut zeigen.
-  overlay.querySelectorAll("a").forEach((a) => a.addEventListener("click", remember));
+  document.getElementById("success-close").addEventListener("click", closeModal);
+  form.addEventListener("submit", onSubmit);
 
   setTimeout(openModal, DELAY_MS);
 })();

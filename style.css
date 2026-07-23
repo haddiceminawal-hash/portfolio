@@ -863,6 +863,76 @@ footer {
   flex-wrap: wrap;
 }
 
+/* Kontaktformular im Popup */
+
+#contact-form {
+  text-align: left;
+  margin-top: 0.4rem;
+}
+
+.field {
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.field > span {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 0.3rem;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.form-error {
+  color: var(--red);
+  font-size: 0.85rem;
+  margin: 0 0 0.6rem;
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.2rem;
+}
+
+.btn-block[disabled] {
+  opacity: 0.65;
+  cursor: default;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .modal-overlay,
   .modal {

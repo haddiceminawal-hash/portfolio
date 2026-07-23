@@ -290,12 +290,53 @@
 <div class="modal-overlay" id="contact-modal" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
     <button class="modal-close" id="modal-close" aria-label="Schließen">&times;</button>
-    <span class="modal-emoji" aria-hidden="true">👋</span>
-    <h3 id="modal-title">Lust, zusammen etwas zu bauen?</h3>
-    <p id="modal-desc">Ob Feedback, eine Projektidee oder einfach hallo sagen – ich freue mich, von dir zu hören.</p>
-    <div class="modal-actions">
-      <a href="mailto:haddice.minawal@gmail.com" class="btn btn-primary">Schreib mir</a>
-      <a href="https://github.com/haddiceminawal-hash" target="_blank" rel="noopener" class="btn btn-ghost">GitHub-Profil ↗</a>
+
+    <!-- Ansicht 1: Formular -->
+    <div id="modal-form-view">
+      <span class="modal-emoji" aria-hidden="true">👋</span>
+      <h3 id="modal-title">Schreib mir</h3>
+      <p id="modal-desc">Ich melde mich so schnell wie möglich bei dir zurück.</p>
+
+      <form id="contact-form" novalidate>
+        <!-- Web3Forms Access-Key (durch echten Schlüssel ersetzen) -->
+        <input type="hidden" name="access_key" id="access-key" value="9f8b8332-e9ea-4737-99fe-775817c47abd">
+
+        <label class="field">
+          <span>Name</span>
+          <input type="text" name="name" id="f-name" required autocomplete="name" placeholder="Dein Name">
+        </label>
+
+        <label class="field">
+          <span>E-Mail</span>
+          <input type="email" name="email" id="f-email" required autocomplete="email" placeholder="du@beispiel.de">
+        </label>
+
+        <label class="field">
+          <span>Nachricht</span>
+          <textarea name="message" id="f-message" rows="4" required placeholder="Deine Nachricht …"></textarea>
+        </label>
+
+        <label class="field">
+          <span id="f-math-label">Verifizierung</span>
+          <input type="text" id="f-math" inputmode="numeric" required autocomplete="off" placeholder="Deine Antwort">
+        </label>
+
+        <!-- Honeypot: für Menschen unsichtbar, fängt Bots ab -->
+        <input type="checkbox" name="botcheck" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+
+        <button type="submit" class="btn btn-primary btn-block" id="form-submit">Absenden</button>
+      </form>
+    </div>
+
+    <!-- Ansicht 2: Erfolg -->
+    <div id="modal-success-view" hidden>
+      <span class="modal-emoji" aria-hidden="true">✅</span>
+      <h3>Nachricht übermittelt!</h3>
+      <p>Danke, <span id="success-name">dir</span>! Deine Nachricht ist bei mir angekommen –
+         ich antworte dir so bald wie möglich.</p>
+      <button type="button" class="btn btn-ghost" id="success-close">Schließen</button>
     </div>
   </div>
 </div>
